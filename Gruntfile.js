@@ -366,7 +366,7 @@ module.exports = function (grunt) {
 	//what gets executed when you run "grunt build"
 	grunt.registerTask('build', [
 		'clean:dist',       //cleans out the dist folder
-		//'test',             //runs unit tests on app folder
+		'test',             //runs unit tests on app folder
 		'useminPrepare',    //looks at index file to find css/js blocks for minification
 		'copy:styles',  	  //
 		//'imagemin',  	  //
