@@ -210,7 +210,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
             onTagAdded: '&',
             onTagRemoved: '&'
         },
-        replace: false,
+//        replace: false,
         transclude: true,
         templateUrl: 'ngTagsInput/tags-input.html',
         controller: ["$scope","$attrs","$element", function($scope, $attrs, $element) {

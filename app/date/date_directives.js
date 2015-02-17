@@ -28,18 +28,14 @@ angular.module('ADE').directive('adeCalpop', ['$filter', function($filter) {
 		require: '?ngModel', //optional dependency for ngModel
 		restrict: 'A', //Attribute declaration eg: <div b-datepicker=""></div>
 
-		scope: {
-			adeCalpop: "@",
-			adeYearonly: "@",
-			ngModel: "="
-		},
+		scope: false,
 
 		//The link step (after compile)
-		link: function(scope, element, attrs) {
+		link: function(scope, element, attrs, ngModel) {
 			var options = {format: 'mm/dd/yyyy'};
-			if(scope.adeCalpop!==undefined) options.format = scope.adeCalpop;
+			if(attrs.adeCalpop!==undefined) options.format = attrs.adeCalpop;
 
-			if(scope.adeYearonly!==undefined && scope.adeYearonly=="1") {
+			if(attrs.adeYearonly!==undefined && attrs.adeYearonly=="1") {
 				options.viewMode = 2; //tells the datepicker to start on year picker
 				options.minViewMode = 2;//tells the datepicker to limit to year only
 			}
@@ -57,7 +53,8 @@ angular.module('ADE').directive('adeCalpop', ['$filter', function($filter) {
 				var dateStr = "";
 				if(e && e.date && e.external==undefined && e.wasClick) { //change came from click on calendar
 					dateStr = $filter('date')(e.date, options.format); //turn timestamp into string
-					scope.ngModel = dateStr;
+					var model = attrs['ngModel'];
+          			scope[model] = dateStr;
 					// console.log("wasClick",dateStr);
 				} else if(e.external && e.date) { //change came from typing or external change
 					if(angular.isNumber(e.date)) {
@@ -66,7 +63,6 @@ angular.module('ADE').directive('adeCalpop', ['$filter', function($filter) {
 						dateStr = e.date;
 					}
 					// console.log("wasExternal",dateStr);
-
 					element.datepicker('setValue', dateStr);					
 				} else if(e.external) {
 					element.datepicker('setValue', null);
@@ -85,8 +81,9 @@ angular.module('ADE').directive('adeCalpop', ['$filter', function($filter) {
 				});
 			});
 
-			if(scope.ngModel) {
-				element.datepicker('setValue', scope.ngModel);
+
+			if(ngModel) {
+				element.datepicker('setValue', ngModel.$viewValue);
 				
 			}
 
@@ -115,11 +112,11 @@ angular.module('ADE').directive('adeCalpop', ['$filter', function($filter) {
 
 			//need to watch the model for changes
 			scope.$watch(function(scope) {
-				return scope.ngModel;
+				return ngModel.$viewValue;
 			}, function () {
 				//updateModel is expecting a certain object from the popup calendar
 				//so we have to simulate it, but add external flag so we can handle it differently
-				updateModel({date:scope.ngModel,external:true});
+				updateModel({date:ngModel.$viewValue,external:true});
 			});
 
 		}
@@ -213,11 +210,11 @@ angular.module('ADE').directive('adeDate', ['ADE', '$compile', '$filter', functi
 				if (exited != 3) { //don't save value on esc
 					value = parseDateString(input.val());
 					if (value == null || value==0) {
-						value = [0,0,0];
-					} else {
+						value = 0;//[0,0,0];
+					} /*else {
 						var offset = new Date(value*1000).getTimezoneOffset();
 						value = [value, value-offset*60, offset];
-					}
+					}*/
 					scope.ngModel = value;
 				}
 				element.show();
@@ -414,7 +411,7 @@ angular.module('ADE').directive('adeDate', ['ADE', '$compile', '$filter', functi
 	to be able to destroy that scope without bothering its siblings/parent. We need to
 	destroy the scope to prevent leaking memory with ngModelWatchers
 ------------------------------------------------------------------*/
-function adeDateDummyCtrl() { }
+angular.module('ADE').controller('adeDateDummyCtrl', function() {});
 
 /*
 References
